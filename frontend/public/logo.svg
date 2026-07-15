@@ -1,0 +1,22 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="grad2" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="40" height="40" rx="10" fill="url(#grad)"/>
+  <!-- Document lines -->
+  <rect x="10" y="11" width="14" height="2.5" rx="1.25" fill="white" opacity="0.95"/>
+  <rect x="10" y="16.5" width="20" height="2.5" rx="1.25" fill="white" opacity="0.75"/>
+  <rect x="10" y="22" width="17" height="2.5" rx="1.25" fill="white" opacity="0.75"/>
+  <!-- Pen/edit accent -->
+  <path d="M26 25.5 L30 21.5 L32.5 24 L28.5 28 L26 28 L26 25.5Z" fill="url(#grad2)" opacity="0.9"/>
+  <path d="M30 21.5 L31.5 20 C32.3 19.2 33.5 19.2 34.3 20 C35.1 20.8 35.1 22 34.3 22.8 L32.5 24 L30 21.5Z" fill="white" opacity="0.9"/>
+  <rect x="10" y="27.5" width="11" height="2.5" rx="1.25" fill="white" opacity="0.5"/>
+</svg>

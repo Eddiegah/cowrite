@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# TypeScript compiled output
+backend/dist/
+
+# Document storage — this is user data, not source code
+backend/storage/
+
+# Environment variables
+.env.local
+.env*.local
+**/.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: cowrite-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false          # Set this manually in the Render dashboard
+      - key: FRONTEND_URL
+        sync: false          # Set to your Vercel URL, e.g. https://cowrite.vercel.app
+      - key: STORAGE_DIR
+        value: /data/storage # Persistent disk mount path
+    disk:
+      name: cowrite-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /health
+    autoDeploy: true
