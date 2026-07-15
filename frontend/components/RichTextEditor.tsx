@@ -27,14 +27,24 @@ import {
   Link2, Link2Off, Image as ImageIcon, Minus,
   Download, ChevronDown, Highlighter, Type,
   Undo2, Redo2, Palette, Table as TableIcon,
-  Trash2,
+  Trash2, Target, Paintbrush,
 } from "lucide-react";
+
+type EditorTheme = "default" | "paper" | "terminal" | "ocean";
+
+const EDITOR_THEMES: { id: EditorTheme; label: string; bg: string; text: string }[] = [
+  { id: "default",  label: "Default",  bg: "#09090b",  text: "#d4d4d8" },
+  { id: "paper",    label: "Paper",    bg: "#fdf8f0",  text: "#2d2016" },
+  { id: "terminal", label: "Terminal", bg: "#0a0f0a",  text: "#39ff14" },
+  { id: "ocean",    label: "Ocean",    bg: "#0d1520",  text: "#c8ddf5" },
+];
 
 interface RichTextEditorProps {
   doc: Y.Doc;
   provider: HocuspocusProvider | null;
   synced: boolean;
   docName?: string;
+  docId?: string;
   onEditorReady?: (editor: Editor) => void;
 }
 
@@ -68,14 +78,46 @@ const HIGHLIGHT_COLORS = [
   "rgba(248,113,113,0.25)","rgba(251,146,60,0.25)",
 ];
 
-export default function RichTextEditor({ doc, provider, synced, docName, onEditorReady }: RichTextEditorProps) {
+export default function RichTextEditor({ doc, provider, synced, docName, docId, onEditorReady }: RichTextEditorProps) {
   const [isReady, setIsReady]     = useState(false);
   const [words, setWords]         = useState(0);
   const [chars, setChars]         = useState(0);
   const [dropdown, setDropdown]   = useState<string | null>(null);
   const [bubblePos, setBubblePos] = useState<{ x: number; y: number } | null>(null);
+  const [wordGoal, setWordGoal]   = useState<number | null>(null);
+  const [goalInput, setGoalInput] = useState("");
+  const [showGoalPopover, setShowGoalPopover] = useState(false);
+  const [editorTheme, setEditorTheme] = useState<EditorTheme>("default");
   const bubbleRef = useRef<HTMLDivElement>(null);
   const close     = useCallback(() => setDropdown(null), []);
+
+  // Load word goal and theme from localStorage
+  useEffect(() => {
+    if (!docId) return;
+    try {
+      const savedGoal = localStorage.getItem(`cowrite_wordgoal_${docId}`);
+      if (savedGoal) setWordGoal(parseInt(savedGoal, 10));
+      const savedTheme = localStorage.getItem(`cowrite_theme_${docId}`) as EditorTheme | null;
+      if (savedTheme) setEditorTheme(savedTheme);
+    } catch {}
+  }, [docId]);
+
+  const saveWordGoal = (goal: number | null) => {
+    setWordGoal(goal);
+    if (docId) {
+      try {
+        if (goal === null) localStorage.removeItem(`cowrite_wordgoal_${docId}`);
+        else localStorage.setItem(`cowrite_wordgoal_${docId}`, String(goal));
+      } catch {}
+    }
+  };
+
+  const saveEditorTheme = (theme: EditorTheme) => {
+    setEditorTheme(theme);
+    if (docId) {
+      try { localStorage.setItem(`cowrite_theme_${docId}`, theme); } catch {}
+    }
+  };
 
   /* ── Editor setup ── */
   const editor = useEditor({
@@ -364,7 +406,8 @@ export default function RichTextEditor({ doc, provider, synced, docName, onEdito
       )}
 
       {/* ════════════════ EDITOR CANVAS ════════════════ */}
-      <div className="flex-1 overflow-y-auto relative" style={{ background: "var(--bg-base)" }}>
+      <div className={`flex-1 overflow-y-auto relative editor-theme-${editorTheme}`}
+        style={{ background: editorTheme === "default" ? "var(--bg-base)" : EDITOR_THEMES.find(t => t.id === editorTheme)?.bg }}>
         {(!isReady || !synced) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 gap-3" style={{ background: "var(--bg-base)" }}>
             <div className="w-7 h-7 rounded-full border-2 animate-spin"
@@ -380,18 +423,138 @@ export default function RichTextEditor({ doc, provider, synced, docName, onEdito
       </div>
 
       {/* ════════════════ STATUS BAR ════════════════ */}
-      <div className="flex items-center justify-between px-5 py-1.5 border-t shrink-0"
-        style={{ background: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
-        <div className="flex items-center gap-3 text-[11px]" style={{ color: "var(--text-quaternary)" }}>
-          <span>{words.toLocaleString()} word{words !== 1 ? "s" : ""}</span>
-          <span className="divider" style={{ height: "12px" }} />
-          <span>{chars.toLocaleString()} char{chars !== 1 ? "s" : ""}</span>
-        </div>
-        <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--text-quaternary)" }}>
-          <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: "var(--bg-hover)", border: "1px solid var(--border-subtle)" }}>Ctrl+Z</kbd>
-          <span>undo</span>
-          <span className="divider" style={{ height: "12px" }} />
-          <span>Rich Text</span>
+      <div className="shrink-0 border-t" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
+        {/* Word count progress bar */}
+        {wordGoal !== null && wordGoal > 0 && (
+          <div className="px-5 pt-1.5">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-medium" style={{ color: words >= wordGoal ? "#10b981" : "var(--text-secondary)" }}>
+                {words.toLocaleString()} / {wordGoal.toLocaleString()} words
+              </span>
+              {words >= wordGoal && <span className="text-[10px] font-semibold" style={{ color: "#10b981" }}>✓ Goal reached!</span>}
+            </div>
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--bg-hover)" }}>
+              <div
+                className="h-full rounded-full word-progress-bar transition-all duration-300"
+                style={{
+                  width: `${Math.min(100, (words / wordGoal) * 100)}%`,
+                  background: words >= wordGoal
+                    ? "linear-gradient(90deg, #10b981, #059669)"
+                    : words / wordGoal > 0.7
+                    ? "linear-gradient(90deg, #f59e0b, #d97706)"
+                    : "linear-gradient(90deg, #6366f1, #8b5cf6)",
+                }}
+              />
+            </div>
+          </div>
+        )}
+        <div className="flex items-center justify-between px-5 py-1.5">
+          <div className="flex items-center gap-3 text-[11px]" style={{ color: "var(--text-quaternary)" }}>
+            <span>{words.toLocaleString()} word{words !== 1 ? "s" : ""}</span>
+            <span className="divider" style={{ height: "12px" }} />
+            <span>{chars.toLocaleString()} char{chars !== 1 ? "s" : ""}</span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--text-quaternary)" }}>
+            {/* Theme dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setDropdown(dropdown === "statustheme" ? null : "statustheme")}
+                data-tooltip="Editor theme"
+                className="flex items-center gap-1 h-6 px-1.5 rounded-md text-[11px] transition-all"
+                style={{ color: "var(--text-quaternary)" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-quaternary)"; }}>
+                <Paintbrush className="w-3 h-3" />
+              </button>
+              {dropdown === "statustheme" && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={close} />
+                  <div className="absolute bottom-8 right-0 z-50 rounded-xl border shadow-2xl py-1.5 min-w-[140px]"
+                    style={{ background: "var(--bg-overlay)", borderColor: "var(--border-normal)", boxShadow: "var(--shadow-lg)" }}>
+                    <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-quaternary)" }}>Editor Theme</div>
+                    {EDITOR_THEMES.map(t => (
+                      <button key={t.id} onClick={() => { saveEditorTheme(t.id); close(); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left transition-colors"
+                        style={{ color: editorTheme === t.id ? "var(--accent)" : "var(--text-secondary)" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                        <span className="w-3.5 h-3.5 rounded-full border flex-shrink-0"
+                          style={{ background: t.bg, borderColor: editorTheme === t.id ? "var(--accent)" : "var(--border-normal)" }} />
+                        {t.label}
+                        {editorTheme === t.id && <span className="ml-auto text-[10px]">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {/* Word goal */}
+            <div className="relative">
+              <button
+                onClick={() => { setGoalInput(wordGoal ? String(wordGoal) : ""); setShowGoalPopover(v => !v); }}
+                data-tooltip="Word count goal"
+                className="flex items-center gap-1 h-6 px-1.5 rounded-md text-[11px] transition-all"
+                style={{ color: wordGoal ? "var(--accent)" : "var(--text-quaternary)" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = wordGoal ? "var(--accent)" : "var(--text-quaternary)"; }}>
+                <Target className="w-3 h-3" />
+                <span className="hidden sm:inline">Goal</span>
+              </button>
+              {showGoalPopover && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowGoalPopover(false)} />
+                  <div className="absolute bottom-8 right-0 z-50 rounded-xl border shadow-2xl p-3 w-52"
+                    style={{ background: "var(--bg-overlay)", borderColor: "var(--border-normal)", boxShadow: "var(--shadow-lg)" }}>
+                    <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-primary)" }}>Word count goal</p>
+                    <input
+                      autoFocus
+                      type="number"
+                      min={1}
+                      value={goalInput}
+                      onChange={e => setGoalInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          const n = parseInt(goalInput, 10);
+                          if (!isNaN(n) && n > 0) saveWordGoal(n);
+                          else saveWordGoal(null);
+                          setShowGoalPopover(false);
+                        }
+                        if (e.key === "Escape") setShowGoalPopover(false);
+                      }}
+                      placeholder="e.g. 500"
+                      className="w-full h-8 px-3 rounded-lg border text-sm focus:outline-none mb-2"
+                      style={{ background: "var(--bg-elevated)", borderColor: "var(--border-normal)", color: "var(--text-primary)" }}
+                    />
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => {
+                          const n = parseInt(goalInput, 10);
+                          if (!isNaN(n) && n > 0) saveWordGoal(n);
+                          setShowGoalPopover(false);
+                        }}
+                        className="flex-1 h-7 rounded-lg text-xs font-semibold text-white"
+                        style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
+                        Set
+                      </button>
+                      {wordGoal !== null && (
+                        <button
+                          onClick={() => { saveWordGoal(null); setShowGoalPopover(false); }}
+                          className="flex-1 h-7 rounded-lg text-xs"
+                          style={{ background: "var(--bg-hover)", color: "var(--text-secondary)" }}>
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            <span className="divider" style={{ height: "12px" }} />
+            <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: "var(--bg-hover)", border: "1px solid var(--border-subtle)" }}>Ctrl+Z</kbd>
+            <span>undo</span>
+            <span className="divider" style={{ height: "12px" }} />
+            <span>Rich Text</span>
+          </div>
         </div>
       </div>
 

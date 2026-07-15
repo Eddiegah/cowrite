@@ -8,13 +8,14 @@ import Link from "next/link";
 import { getStoredUser, signOut, type AuthUser } from "@/lib/auth";
 import {
   fetchDocuments, createDocument, updateDocument,
-  deleteDocument, type DocMetadata,
+  deleteDocument, fetchDocPreview, type DocMetadata,
 } from "@/lib/yjs-provider";
+import { getTheme, toggleTheme } from "@/lib/theme";
 import {
   Plus, Search, FileText, Code2, LayoutGrid, List as ListIcon,
   ChevronDown, Settings, LogOut, User as UserIcon, Upload,
   Clock, Star, Trash2, MoreVertical, FolderOpen, Sparkles,
-  BookOpen, Terminal, FileCode2, AlignLeft,
+  BookOpen, Terminal, FileCode2, AlignLeft, Sun, Moon,
 } from "lucide-react";
 
 type SortBy = "updatedAt" | "createdAt" | "name";
@@ -65,8 +66,18 @@ function Dashboard() {
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<"dark"|"light">("dark");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const createInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") setCurrentTheme(getTheme());
+  }, []);
+
+  const handleThemeToggle = () => {
+    const next = toggleTheme();
+    setCurrentTheme(next);
+  };
 
   useEffect(() => {
     const u = getStoredUser();
@@ -285,6 +296,15 @@ function Dashboard() {
               onBlur={e => { e.target.style.borderColor = "var(--border-subtle)"; e.target.style.background = "var(--bg-elevated)"; }} />
           </div>
           <div className="flex items-center gap-2 ml-auto">
+            {/* Theme toggle */}
+            <button onClick={handleThemeToggle}
+              data-tooltip={currentTheme === "dark" ? "Light mode" : "Dark mode"}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+              style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}
+              onMouseEnter={e => { e.currentTarget.style.color = "var(--text-primary)"; }}
+              onMouseLeave={e => { e.currentTarget.style.color = "var(--text-secondary)"; }}>
+              {currentTheme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
             {/* Sort */}
             <div className="relative">
               <button onClick={() => setSortMenuOpen(v => !v)}

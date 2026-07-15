@@ -2,10 +2,11 @@
 
 /* ============================================================
    CoWrite — Global Design System
-   Apple-grade dark UI
+   Apple-grade dark UI + Light mode + Editor themes
    ============================================================ */
 
-:root {
+:root,
+[data-theme="dark"] {
   --bg-base:        #09090b;
   --bg-surface:     #111113;
   --bg-elevated:    #18181b;
@@ -31,6 +32,88 @@
   --shadow-xl:  0 32px 80px rgba(0,0,0,0.75), 0 16px 40px rgba(0,0,0,0.5);
   --shadow-glow-accent: 0 0 24px rgba(99,102,241,0.35);
 }
+
+/* ── Light theme ── */
+[data-theme="light"] {
+  --bg-base:        #f8f8f9;
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #f1f1f4;
+  --bg-overlay:     #eaeaee;
+  --bg-hover:       #e4e4e9;
+  --border-subtle:  rgba(0,0,0,0.07);
+  --border-normal:  rgba(0,0,0,0.12);
+  --border-strong:  rgba(0,0,0,0.20);
+  --text-primary:   #09090b;
+  --text-secondary: #52525b;
+  --text-tertiary:  #71717a;
+  --text-quaternary:#a1a1aa;
+  --accent:         #6366f1;
+  --accent-hover:   #4f46e5;
+  --accent-subtle:  rgba(99,102,241,0.10);
+  --emerald:        #059669;
+  --emerald-subtle: rgba(5,150,105,0.10);
+  --glass-bg:       rgba(248,248,249,0.92);
+  --glass-border:   rgba(0,0,0,0.08);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:  0 16px 48px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.10);
+  --shadow-xl:  0 32px 80px rgba(0,0,0,0.18), 0 16px 40px rgba(0,0,0,0.12);
+  --shadow-glow-accent: 0 0 24px rgba(99,102,241,0.2);
+}
+
+/* ── Light mode ProseMirror overrides ── */
+[data-theme="light"] .ProseMirror { color: #27272a; }
+[data-theme="light"] .ProseMirror h1 { color: #09090b; }
+[data-theme="light"] .ProseMirror h2 { color: #18181b; }
+[data-theme="light"] .ProseMirror h3 { color: #27272a; }
+
+/* ── Document editor themes ── */
+
+/* Paper (cream/light) */
+.editor-theme-paper {
+  --editor-bg: #fdf8f0;
+  --editor-text: #2d2016;
+}
+.editor-theme-paper .ProseMirror {
+  background: #fdf8f0 !important;
+  color: #2d2016 !important;
+}
+.editor-theme-paper .ProseMirror h1,
+.editor-theme-paper .ProseMirror h2,
+.editor-theme-paper .ProseMirror h3 { color: #1a1208 !important; }
+
+/* Terminal (green on black) */
+.editor-theme-terminal {
+  --editor-bg: #0a0f0a;
+  --editor-text: #39ff14;
+}
+.editor-theme-terminal .ProseMirror {
+  background: #0a0f0a !important;
+  color: #39ff14 !important;
+  font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace !important;
+}
+.editor-theme-terminal .ProseMirror h1,
+.editor-theme-terminal .ProseMirror h2,
+.editor-theme-terminal .ProseMirror h3 { color: #7fff00 !important; }
+.editor-theme-terminal .ProseMirror a { color: #00ff88 !important; }
+
+/* Ocean (blue tint) */
+.editor-theme-ocean {
+  --editor-bg: #0d1520;
+  --editor-text: #c8ddf5;
+}
+.editor-theme-ocean .ProseMirror {
+  background: #0d1520 !important;
+  color: #c8ddf5 !important;
+}
+.editor-theme-ocean .ProseMirror h1,
+.editor-theme-ocean .ProseMirror h2,
+.editor-theme-ocean .ProseMirror h3 { color: #e0eeff !important; }
+.editor-theme-ocean .ProseMirror a { color: #60b4f8 !important; }
+
+/* Word count progress bar animation */
+@keyframes progressFill { from { width: 0; } }
+.word-progress-bar { animation: progressFill 0.4s ease-out; }
 
 /* ── Reset & base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; }
@@ -493,3 +576,47 @@ html, body {
   border-color: rgba(99,102,241,0.6);
   box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }
+
+/* ════════════════════════════════════════════
+   LIGHT THEME
+   ════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg-base:        #f8f9fc;
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #f1f3f8;
+  --bg-overlay:     #e8ebf2;
+  --bg-hover:       #e2e5ef;
+  --border-subtle:  rgba(0,0,0,0.07);
+  --border-normal:  rgba(0,0,0,0.12);
+  --border-strong:  rgba(0,0,0,0.20);
+  --text-primary:   #0f0f11;
+  --text-secondary: #3f3f46;
+  --text-tertiary:  #71717a;
+  --text-quaternary:#a1a1aa;
+  --glass-bg:       rgba(248,249,252,0.88);
+  --glass-border:   rgba(0,0,0,0.08);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:  0 16px 48px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-xl:  0 32px 80px rgba(0,0,0,0.15), 0 16px 40px rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] body { background-color: #f8f9fc; color: #0f0f11; }
+[data-theme="light"] .ProseMirror { color: #1a1a2e; }
+[data-theme="light"] .ProseMirror p { color: #374151; }
+[data-theme="light"] .ProseMirror h1,
+[data-theme="light"] .ProseMirror h2,
+[data-theme="light"] .ProseMirror h3 { color: #0f0f11; }
+[data-theme="light"] .ProseMirror blockquote { background: rgba(99,102,241,0.04); }
+[data-theme="light"] .ProseMirror code { background: rgba(99,102,241,0.08); color: #4f46e5; }
+[data-theme="light"] .ProseMirror pre { background: #f1f3f8; border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .ProseMirror pre code { color: #1a1a2e; }
+[data-theme="light"] .ProseMirror a { color: #4f46e5; }
+[data-theme="light"] .ProseMirror th { background: rgba(99,102,241,0.06); color: #374151; }
+[data-theme="light"] .ProseMirror td { color: #0f0f11; }
+[data-theme="light"] .bubble-menu { background: #ffffff; border-color: rgba(0,0,0,0.12); }
+[data-theme="light"] .bubble-menu button { color: #374151; }
+[data-theme="light"] .bubble-menu button:hover { background: #f1f3f8; color: #0f0f11; }
+[data-theme="light"] .bubble-menu button.is-active { background: rgba(99,102,241,0.12); color: #4f46e5; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }

@@ -100,6 +100,7 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const fetchDocuments   = ()                     => apiFetch<DocMetadata[]>("/api/documents");
 export const fetchDocument    = (id: string)           => apiFetch<DocMetadata>(`/api/documents/${id}`);
+export const fetchDocPreview  = (id: string)           => apiFetch<{ preview: string }>(`/api/documents/${id}/preview`).catch(() => ({ preview: "" }));
 export const createDocument   = (name: string, mode: "richtext" | "code", language?: string) =>
   apiFetch<DocMetadata>("/api/documents", { method: "POST", body: JSON.stringify({ name, mode, language }) });
 export const updateDocument   = (id: string, updates: { name?: string; language?: string }) =>

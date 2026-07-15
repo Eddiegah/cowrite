@@ -79,6 +79,31 @@ app.post("/api/documents", (req, res) => {
   res.status(201).json(doc);
 });
 
+app.get("/api/documents/:id/preview", (req, res) => {
+  const fp = path.join(DOCS_DIR, `${req.params.id}.bin`);
+  if (!fs.existsSync(fp)) { res.json({ preview: "" }); return; }
+  try {
+    const ydoc = new Y.Doc();
+    Y.applyUpdate(ydoc, fs.readFileSync(fp));
+    // Try richtext (TipTap uses "default" key), fallback to codemirror
+    let text = "";
+    const xmlFragment = ydoc.getXmlFragment("default");
+    const serialized = xmlFragment.toString();
+    // Strip XML/HTML tags to get plain text
+    text = serialized.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 150);
+    if (!text) {
+      // Try code editor text
+      const codeText = ydoc.getText("codemirror");
+      text = codeText.toString().slice(0, 150);
+    }
+    ydoc.destroy();
+    res.json({ preview: text.slice(0, 100) });
+  } catch (e) {
+    console.error("[preview]", e);
+    res.json({ preview: "" });
+  }
+});
+
 app.put("/api/documents/:id", (req, res) => {
   const idx = readMeta(); const doc = idx.documents.find(d => d.id === req.params.id);
   if (!doc) { res.status(404).json({ error: "Not found" }); return; }
