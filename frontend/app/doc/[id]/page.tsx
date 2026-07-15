@@ -78,24 +78,31 @@ function DocPageInner({ params }: { params: Promise<{ id: string }> }) {
     if (identity.name === "Anonymous") setShowNameModal(true);
 
     const load = async () => {
-      // Ping health first — if it fails (Render sleeping), show wake-up UI and retry
+      // Helper: fetch with timeout (AbortSignal.timeout not supported everywhere)
+      const fetchWithTimeout = (url: string, ms: number) => {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), ms);
+        return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+      };
+
+      // Ping health — if Render is sleeping, wait for it to wake up
       try {
-        const h = await fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(4000) });
+        const h = await fetchWithTimeout(`${API_URL}/health`, 5000);
         if (!h.ok) throw new Error("not ok");
       } catch {
         setWaking(true);
-        // Wait up to 30s for Render to wake up
-        for (let i = 0; i < 10; i++) {
+        let awake = false;
+        for (let i = 0; i < 12 && !awake; i++) {
           await new Promise(r => setTimeout(r, 3000));
           try {
-            const h2 = await fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(4000) });
-            if (h2.ok) { setWaking(false); break; }
+            const h2 = await fetchWithTimeout(`${API_URL}/health`, 5000);
+            if (h2.ok) awake = true;
           } catch { /* keep waiting */ }
         }
         setWaking(false);
       }
 
-      // Now load the document metadata
+      // Load document metadata
       try {
         const doc = await fetchDocument(id);
         setDocMeta(doc); setTitleValue(doc.name);

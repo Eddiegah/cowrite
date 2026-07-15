@@ -83,13 +83,13 @@ export default function CodeEditor({ doc, provider, synced, initialLanguage = "j
           ".cm-scroller": { overflow: "auto", paddingTop: "8px", paddingBottom: "8px" },
           ".cm-content": { caretColor: "#818cf8", padding: "0 8px" },
           ".cm-focused .cm-cursor": { borderLeftColor: "#818cf8", borderLeftWidth: "2px" },
-          ".cm-gutters": { background: "#1a1a1e", borderRight: "1px solid rgba(255,255,255,0.05)", color: "#3f3f46" },
-          ".cm-activeLineGutter": { background: "rgba(99,102,241,0.08)", color: "#71717a" },
+          ".cm-gutters": { background: "transparent", borderRight: "1px solid var(--border-subtle)", color: "var(--text-quaternary)" },
+          ".cm-activeLineGutter": { background: "rgba(99,102,241,0.08)", color: "var(--text-tertiary)" },
           ".cm-activeLine": { background: "rgba(99,102,241,0.05)" },
           ".cm-searchMatch": { background: "rgba(251,191,36,0.25)", border: "1px solid rgba(251,191,36,0.5)" },
           ".cm-searchMatch.cm-searchMatch-selected": { background: "rgba(99,102,241,0.4)" },
           ".cm-foldGutter": { paddingLeft: "4px" },
-          ".cm-editor": { background: "#0f0f11" },
+          ".cm-editor": { background: "var(--bg-base)" },
         }),
         EditorView.updateListener.of(update => {
           if (update.docChanged) setLineCount(update.state.doc.lines);
@@ -172,9 +172,9 @@ export default function CodeEditor({ doc, provider, synced, initialLanguage = "j
       </div>
 
       {/* Editor */}
-      <div className="flex-1 overflow-hidden relative" style={{ background: "#0f0f11" }}>
+      <div className="flex-1 overflow-hidden relative cm-host" style={{ background: "var(--bg-base)" }}>
         {!synced && (
-          <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: "#0f0f11" }}>
+          <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: "var(--bg-base)" }}>
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: "var(--border-normal)", borderTopColor: "#818cf8" }} />
               <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Loading document…</span>
@@ -185,9 +185,9 @@ export default function CodeEditor({ doc, provider, synced, initialLanguage = "j
       </div>
 
       {/* Status bar */}
-      <div className="flex items-center justify-between px-5 py-1.5 border-t shrink-0" style={{ background: "#0f0f11", borderColor: "rgba(255,255,255,0.05)" }}>
-        <span className="text-[11px]" style={{ color: "#3f3f46" }}>{lineCount} line{lineCount !== 1 ? "s" : ""}</span>
-        <span className="text-[11px]" style={{ color: "#3f3f46" }}>{currentLang?.label}</span>
+      <div className="flex items-center justify-between px-5 py-1.5 border-t shrink-0" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}>
+        <span className="text-[11px]" style={{ color: "var(--text-quaternary)" }}>{lineCount} line{lineCount !== 1 ? "s" : ""}</span>
+        <span className="text-[11px]" style={{ color: "var(--text-quaternary)" }}>{currentLang?.label}</span>
       </div>
     </div>
   );
