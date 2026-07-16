@@ -19,6 +19,7 @@ import type { CodeLanguage } from "@/components/CodeEditor";
 import type { Editor } from "@tiptap/react";
 import type { AIContext } from "@/lib/ai";
 import ThemeToggle from "@/components/ThemeToggle";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false, loading: () => <EditorSkeleton accent="#6366f1" /> });
 const CodeEditor    = dynamic(() => import("@/components/CodeEditor"),    { ssr: false, loading: () => <EditorSkeleton accent="#10b981" /> });
@@ -40,9 +41,11 @@ function EditorSkeleton({ accent }: { accent: string }) {
 
 export default function DocumentPage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<div className="h-screen flex items-center justify-center" style={{ background: "var(--bg-base)" }}><div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: "var(--border-normal)", borderTopColor: "#6366f1" }} /></div>}>
-      <DocPageInner params={params} />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<div className="h-screen flex items-center justify-center" style={{ background: "var(--bg-base)" }}><div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: "var(--border-normal)", borderTopColor: "#6366f1" }} /></div>}>
+        <DocPageInner params={params} />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
