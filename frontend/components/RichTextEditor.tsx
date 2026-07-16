@@ -27,7 +27,7 @@ import {
   Link2, Link2Off, Image as ImageIcon, Minus,
   Download, ChevronDown, Highlighter, Type,
   Undo2, Redo2, Palette, Table as TableIcon,
-  Trash2, Target, Paintbrush,
+  Trash2, Crosshair, Brush,
 } from "lucide-react";
 
 type EditorTheme = "default" | "paper" | "terminal" | "ocean";
@@ -464,7 +464,7 @@ export default function RichTextEditor({ doc, provider, synced, docName, docId, 
                 style={{ color: "var(--text-quaternary)" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-quaternary)"; }}>
-                <Paintbrush className="w-3 h-3" />
+                <Brush className="w-3 h-3" />
               </button>
               {dropdown === "statustheme" && (
                 <>
@@ -497,7 +497,7 @@ export default function RichTextEditor({ doc, provider, synced, docName, docId, 
                 style={{ color: wordGoal ? "var(--accent)" : "var(--text-quaternary)" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = wordGoal ? "var(--accent)" : "var(--text-quaternary)"; }}>
-                <Target className="w-3 h-3" />
+                <Crosshair className="w-3 h-3" />
                 <span className="hidden sm:inline">Goal</span>
               </button>
               {showGoalPopover && (
