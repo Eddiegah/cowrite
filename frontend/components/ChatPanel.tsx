@@ -21,9 +21,12 @@ export default function ChatPanel({ doc, onClose, onNewMessage }: ChatPanelProps
 
   // Safe identity getter — only runs client-side
   const getIdentity = () => {
-    if (typeof window === "undefined") return { name: "Anonymous", color: "#6366f1" };
-    try { return JSON.parse(localStorage.getItem("cowrite_user") || "{}") as { name: string; color: string }; }
-    catch { return { name: "Anonymous", color: "#6366f1" }; }
+    if (typeof window === "undefined") return { name: "Anonymous", color: "#7c6af7" };
+    try {
+      const parsed = JSON.parse(localStorage.getItem("cowrite_user") || "{}") as { name?: string; color?: string };
+      return { name: parsed?.name || "Anonymous", color: parsed?.color || "#7c6af7" };
+    }
+    catch { return { name: "Anonymous", color: "#7c6af7" }; }
   };
 
   useEffect(() => {
@@ -48,7 +51,12 @@ export default function ChatPanel({ doc, onClose, onNewMessage }: ChatPanelProps
   const formatTime = (ts: number) => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const initials = (n: string) => n.split(" ").map(x=>x[0]).join("").toUpperCase().slice(0,2);
 
-  const myId = typeof window !== "undefined" ? (() => { try { const u = JSON.parse(localStorage.getItem("cowrite_user")||"{}") as {name:string;color:string}; return u.name+u.color; } catch { return ""; } })() : "";
+  const myId = typeof window !== "undefined" ? (() => {
+    try {
+      const u = JSON.parse(localStorage.getItem("cowrite_user") || "{}") as { name?: string; color?: string };
+      return (u?.name || "") + (u?.color || "");
+    } catch { return ""; }
+  })() : "";
 
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--bg-surface)" }}>

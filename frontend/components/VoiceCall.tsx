@@ -21,9 +21,12 @@ export default function VoiceCall({ docId, provider, onClose }: VoiceCallProps) 
 
   // Safe: only runs client-side
   const getIdentity = () => {
-    if (typeof window === "undefined") return { name: "Anonymous", color: "#6366f1" };
-    try { return JSON.parse(localStorage.getItem("cowrite_user") || "{}") as { name: string; color: string }; }
-    catch { return { name: "Anonymous", color: "#6366f1" }; }
+    if (typeof window === "undefined") return { name: "Anonymous", color: "#7c6af7" };
+    try {
+      const parsed = JSON.parse(localStorage.getItem("cowrite_user") || "{}") as { name?: string; color?: string };
+      return { name: parsed?.name || "Anonymous", color: parsed?.color || "#7c6af7" };
+    }
+    catch { return { name: "Anonymous", color: "#7c6af7" }; }
   };
 
   const startCall = async () => {

@@ -29,8 +29,15 @@ export function getUserIdentity(): UserIdentity {
   if (typeof window === "undefined") return { name: "Anonymous", color: USER_COLORS[0] };
   try {
     const stored = localStorage.getItem("cowrite_user");
-    if (stored) return JSON.parse(stored) as UserIdentity;
-  } catch {}
+    if (stored) {
+      const parsed = JSON.parse(stored) as Partial<UserIdentity>;
+      // Ensure both name and color exist and are valid strings
+      if (parsed && typeof parsed.name === "string" && typeof parsed.color === "string" && parsed.color) {
+        return { name: parsed.name || "Anonymous", color: parsed.color };
+      }
+    }
+  } catch { /* fall through */ }
+  // Generate fresh identity with guaranteed color
   const identity: UserIdentity = {
     name: "Anonymous",
     color: USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)],
