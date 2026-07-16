@@ -15,7 +15,12 @@ import fs from "fs";
 import * as Y from "yjs";
 
 // ── Storage ──────────────────────────────────────────────────────────────────
-const STORAGE_ROOT = process.env.STORAGE_DIR || path.join(process.cwd(), "storage");
+// STORAGE_DIR env var should point to a persistent location.
+// On Render free tier (no persistent disk): use /opt/render/project/src/storage
+// — this directory IS preserved between deploys on Render (unlike /tmp).
+// Set STORAGE_DIR=/opt/render/project/src/storage in Render env vars.
+const STORAGE_ROOT = process.env.STORAGE_DIR
+  || (process.env.RENDER ? "/opt/render/project/src/storage" : path.join(process.cwd(), "storage"));
 const DOCS_DIR     = path.join(STORAGE_ROOT, "docs");
 const META_PATH    = path.join(STORAGE_ROOT, "metadata.json");
 

@@ -106,8 +106,13 @@ function DocPageInner({ params }: { params: Promise<{ id: string }> }) {
       try {
         const doc = await fetchDocument(id);
         setDocMeta(doc); setTitleValue(doc.name);
-      } catch {
-        setMetaError("Could not reach the server. Please refresh.");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes("404")) {
+          setMetaError("This document no longer exists. It may have been deleted or the server was restarted.");
+        } else {
+          setMetaError("Could not reach the server. Please check your connection and refresh.");
+        }
       } finally {
         setMetaLoading(false);
       }
@@ -199,9 +204,22 @@ function DocPageInner({ params }: { params: Promise<{ id: string }> }) {
 
   if (metaError || !docMeta) return (
     <div className="h-screen flex items-center justify-center" style={{ background: "var(--bg-base)" }}>
-      <div className="text-center">
-        <p className="text-sm mb-4" style={{ color: "#f87171" }}>{metaError ?? "Document not found."}</p>
-        <Link href="/" className="text-sm underline" style={{ color: "#818cf8" }}>← Back to documents</Link>
+      <div className="text-center max-w-sm px-6">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: "rgba(239,68,68,0.1)" }}>
+          <span className="text-2xl">📄</span>
+        </div>
+        <h2 className="text-base font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
+          {metaError?.includes("no longer exists") ? "Document not found" : "Could not load document"}
+        </h2>
+        <p className="text-sm mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+          {metaError ?? "This document could not be found."}
+        </p>
+        <Link href="/"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+          style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }}>
+          ← Back to dashboard
+        </Link>
       </div>
     </div>
   );
